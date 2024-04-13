@@ -1,6 +1,6 @@
 {
   "name": "simplenotion",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "type": "module",
   "main": "./dist/simplenotion.umd.cjs",
   "module": "./dist/simplenotion.js",

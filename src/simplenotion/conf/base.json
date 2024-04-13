@@ -1,0 +1,5 @@
+{
+   "database": {
+       "supportedPropertyTypes": ["title", "rich_text", "date", "number"]
+   }
+}

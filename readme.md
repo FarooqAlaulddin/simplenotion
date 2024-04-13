@@ -9,9 +9,6 @@ Lightweight wrapper around notion native JavaScript SDK to make things a bit eas
 
 Database constructor needs secret notion token (see [create new notion integration](https://www.notion.so/my-integrations)) and database id (you can get this from url). Make sure that the database you want to access is shared with the integration you create.
 
-    import { Database } from '+sn/database';
-    // const Database = require('+sn/database');
-
     const database = new Database(NOTION_SECRET_TOKEN, SOME_DATABASE_ID);
 
 ### Things to keep in mind

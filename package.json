@@ -1,6 +1,5 @@
 {
-  "name": "simplenotion_1",
-  "private": true,
+  "name": "simplenotion",
   "version": "0.0.1",
   "type": "module",
   "main": "./dist/simplenotion.umd.cjs",
@@ -13,8 +12,7 @@
   },
   "scripts": {
     "dev": "vite-node --watch example.js",
-    "build": "vite build",
-    "preview": "vite preview"
+    "build": "vite build"
   },
   "dependencies": {
     "@notionhq/client": "^2.2.14",

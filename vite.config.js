@@ -18,6 +18,10 @@ export default defineConfig({
         extensions: ['.js', '.json'],
     },
 
+    test: {
+        testTimeout: 1000 * 60
+    },
+
     build: {
         lib: {
             // Could also be a dictionary or array of multiple entry points

@@ -1,9 +1,8 @@
 import { NativeClient } from '+notionhq';
 import { SimpleNotionException } from '+sn/errors';
 import { DataTypes } from '+sn/common';
+import { getProperty } from '+sn/common/utils';
 
-
-// import {isArrayOfArrays} from '+sn/common';
 
 /** @module Query */
 
@@ -21,6 +20,7 @@ export class Query extends NativeClient {
     // query to be executed
     #query = {};
     #selectedProperties = [];
+    #selectedRowProperties = []
 
     // query level
     #querylevel = [];
@@ -129,19 +129,23 @@ export class Query extends NativeClient {
      * @return {Query}
      */
     get(fields = []) {
+        this.#selectedProperties = [];
+        this.#selectedRowProperties = [];
 
-        if (Array.isArray(fields) && fields.length > 0) {
-            fields = fields.filter(p => typeof p === 'string')
+        const actualTableProperties = this.#getTableProperties();
 
-            const tableProperties = Object.keys(this.#getTableProperties())
-            const checkFields = fields.every(p => tableProperties.includes(p))
+        fields.forEach(field => {
+            if (typeof field !== 'string') this.#setError(1008, 'only strings allowed');
 
-            if (!checkFields) this.#setError(1008, 'Trying to query unknwon property')
+            if (!field.startsWith('.')) {
+                if (!actualTableProperties.hasOwnProperty(field)) this.#setError(1008, `trying to query unknwon property: ${field}`);
+                this.#selectedProperties.push(field);
+            } else {
+                // TODO: more checks?
+                this.#selectedRowProperties.push(field);
+            }
 
-            this.#selectedProperties = fields
-
-        }
-
+        })
 
         return this;
     }
@@ -157,7 +161,7 @@ export class Query extends NativeClient {
         // const incomingQuery = isArrayOfArrays(query) ? query : [query];
         const incomingQuery = query;
 
-        if (incomingQuery.length == 0) return;
+        if (incomingQuery.length == 0) return this;
         else if (incomingQuery.length == 1) {
             this.#query = this.prepareProperty(incomingQuery[0]);
         } else {
@@ -177,7 +181,6 @@ export class Query extends NativeClient {
     }
 
 
-    // eslint-disable-next-line require-jsdoc
     #convertArrayToObject = (arr) => {
         // https://stackoverflow.com/questions/75964970/convert-array-to-object-with-special-conditions/75965249#75965249
 
@@ -186,9 +189,7 @@ export class Query extends NativeClient {
 
         arr.slice(1).reduce((current, val) => {
             if (val === 'and' || val === 'or') {
-                // let x = {[val]: []}
-                // current.push(x);
-                // return x[val];
+                // x = {[val]: []}; current.push(x); return x[val];
                 return current[current.push({ [val]: [] }) - 1][val];
             } else {
                 // TODO: Maybe support [nameOfProperty, notionFilter, dataOfProperty1, dataOfProperty2, ...] by breaking it to multiple entry
@@ -211,7 +212,8 @@ export class Query extends NativeClient {
 
     #getSelectedTablePropertyIDs() {
         const tableProperties = this.#getTableProperties()
-        const selectedTablePropertyIDs = Object.values(tableProperties).filter(p => this.#selectedProperties.includes(p.name)).map(p => p.id)
+        const allowedselectedProperties = this.#selectedProperties;
+        const selectedTablePropertyIDs = Object.values(tableProperties).filter(p => allowedselectedProperties.includes(p.name)).map(p => p.id)
         return selectedTablePropertyIDs
     }
 
@@ -222,7 +224,8 @@ export class Query extends NativeClient {
         this.#isQueryReadyforExecute = true;
         this.#error = { 'code': 2, 'message': '' };
         this.#query = {};
-        this.#selectedProperties = []
+        this.#selectedProperties = [];
+        this.#selectedRowProperties = [];
         this.#querylevel = [];
     }
 
@@ -246,24 +249,33 @@ export class Query extends NativeClient {
         }
 
         try {
-
-            const response = await this.databaseRefs[this.indexOfDatabaseInUse].database.notionClient.databases.query({
-                // eslint-disable-next-line camelcase
+            const notionQuery = {
                 'database_id': this.databaseRefs[this.indexOfDatabaseInUse].databaseId,
-                'filter': this.#query,
-                'filter_properties': this.#getSelectedTablePropertyIDs()
-            });
+                'filter_properties': [...new Set([...this.#getSelectedTablePropertyIDs(), 'title'])],
+            }
 
+            if (Object.keys(this.#query).length !== 0) {
+                notionQuery['filter'] = this.#query
+            }
+
+            const response = await this.databaseRefs[this.indexOfDatabaseInUse].database.notionClient.databases.query(notionQuery);
             const results = []
 
             response.results.forEach(row => {
-                const rowFiltered = {}
-                Object.entries(row.properties).forEach(([key, value]) => {
 
+                const rowFiltered = {}
+
+                Object.entries(row.properties).forEach(([key, value]) => {
                     const text = this.dataTypes['GET_' + value.type](value)
                     rowFiltered[key] = text
-
                 })
+
+                this.#selectedRowProperties.forEach(prop => {
+                    if (!rowFiltered.hasOwnProperty(prop)) {
+                        rowFiltered[prop] = getProperty(prop, row)
+                    }
+                })
+
                 results.push(rowFiltered)
             })
 

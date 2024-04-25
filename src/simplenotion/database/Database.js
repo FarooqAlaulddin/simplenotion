@@ -177,7 +177,10 @@ export class Database extends NativeClient {
     }
 
 
-    async delete(IDs) {
+    async delete(...args) {
+
+
+
         IDs = [IDs[0]].flat();
         IDs.forEach(id => this.#deleteNotionPageInDatabaseParent(id))
     }
@@ -223,7 +226,7 @@ export class Database extends NativeClient {
      * pushInsertPromsises function pushs notion format object to a promise array to be handled as a collection
      * @private
      * @param {Array.<object>} notionDatabaseInputFormat
-     * @return {Array.<Promises>} Array of promises
+     * @return {Array.<promises>} Array of promises
      */
     #pushInsertPromsises(notionDatabaseInputFormat) {
         const promises = [];

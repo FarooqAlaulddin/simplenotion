@@ -1,5 +1,4 @@
 // eslint-disable-next-line no-unused-vars
-import colors from 'colors';
 import errorCodes from '+sn/errors/ErrorCodes.json';
 import { ConfigurationManager } from '+sn/conf';
 
@@ -37,8 +36,12 @@ export class SimpleNotionException extends Error {
             }
         })
 
-        this.display = `{"code": ${this.code}, "text": "${this.type}", "message": "${this.message === '' ? '' : this.message}"}`;
-        this.display = JSON.parse(this.display);
+        this.display = {
+            code: this.code,
+            text: this.type,
+            msg: this.message,
+        }
+
         return this.display;
     }
 

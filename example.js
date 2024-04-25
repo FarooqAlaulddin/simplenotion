@@ -1,4 +1,4 @@
-// import { Database } from '+sn/database';
+import { Database } from '+sn/database';
 // import { Database } from './dist/simplenotion';
 // const { Database } = require('./dist/simplenotion.umd.cjs');
 

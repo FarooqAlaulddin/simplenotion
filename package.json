@@ -10,9 +10,15 @@
       "require": "./dist/simplenotion.umd.cjs"
     }
   },
+  "files": [
+    "dist/*",
+    "readme.md"
+  ],
   "scripts": {
     "dev": "vite-node --watch example.js",
-    "build": "vite build"
+    "build:watch": "vite build --watch",
+    "build": "vite build",
+    "test": "vitest"
   },
   "dependencies": {
     "@notionhq/client": "^2.2.14",
@@ -21,6 +27,7 @@
   },
   "devDependencies": {
     "vite": "^5.1.4",
-    "vite-node": "^1.3.1"
+    "vite-node": "^1.3.1",
+    "vitest": "^1.5.0"
   }
 }

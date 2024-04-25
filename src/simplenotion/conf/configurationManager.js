@@ -7,12 +7,14 @@ const USER_DEFINED_BEHAVIORAL_CONFIGS_NAME = 'simplenotion.json';
 
 /**
  * configurationManager is the tool resposible for getting the required configs in the following order:
+ * - Object Level.
  * - simplenotion.json located in the current working directory of the node.js process.
  * - Default config defined in +sn/conf.
  * @param {object} classUniqueConfigs
  * @return {object}
  */
 export const ConfigurationManager = function (classUniqueConfigs = {}) {
+    // console.log(process.env.simplenotion + '/' + 'simplenotion.json');
     this.classUniqueConfigs = classUniqueConfigs;
     return true;
 };
@@ -38,7 +40,6 @@ ConfigurationManager.prototype.behavioral = async function (field) {
         // if user had defined simplenotion.json at process.cwd && <field> is present
         const USER_DEFINED_BEHAVIORAL_CONFIGS = await getUserDefinedBehavioralPresent();
         const reqField = getProperty(field, USER_DEFINED_BEHAVIORAL_CONFIGS);
-        console.log(reqField);
 
         if (reqField) return reqField;
 
@@ -48,6 +49,8 @@ ConfigurationManager.prototype.behavioral = async function (field) {
         // incase somthing happend during readFileSync, ingore errors and use default value for field
         return getPropertyFromDefaultBehavioral(field);
     }
+
+
 };
 
 ConfigurationManager.prototype.base = function (field) {

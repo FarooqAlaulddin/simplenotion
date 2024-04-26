@@ -64,7 +64,7 @@ export const SN = test.extend({
     },
     mock_db_data_1,
     SKIP_LOCALLY: function ({ skip }) {
-        if (process.env?.IS_GETHUB_ACTIONS === true) return
+        if (process.env?.VITE_TESTS_IS_GETHUB_ACTIONS === true) return
         skip()
     }
 })

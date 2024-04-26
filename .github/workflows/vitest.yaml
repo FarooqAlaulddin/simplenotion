@@ -27,3 +27,4 @@ jobs:
         env:
           VITE_TESTS_NOTION_SECRET_TOKEN: ${{ secrets.VITE_TESTS_NOTION_SECRET_TOKEN }}
           VITE_TESTS_NOTION_DATABASE_1: ${{ secrets.VITE_TESTS_NOTION_DATABASE_1 }}
+          IS_GETHUB_ACTIONS: ${{ secrets.actions }}

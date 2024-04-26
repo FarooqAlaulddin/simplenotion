@@ -98,5 +98,5 @@ SN('query #3 data from database with unknown field', async ({ database, skip }) 
         ['name', 'contains', 'Local']
     ]).run()
 
-    console.log(query);
+    // console.log(query);
 })

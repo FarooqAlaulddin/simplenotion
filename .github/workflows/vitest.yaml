@@ -23,4 +23,7 @@ jobs:
         run: yarn install
 
       - name: Run vitest
-        run: yarn vitest  # Assuming 'vitest' is defined as an npm script
+        run: yarn vitest
+        env:
+          VITE_TESTS_NOTION_SECRET_TOKEN: ${{ secrets.VITE_TESTS_NOTION_SECRET_TOKEN }}
+          VITE_TESTS_NOTION_DATABASE_1: ${{ secrets.VITE_TESTS_NOTION_DATABASE_1 }}

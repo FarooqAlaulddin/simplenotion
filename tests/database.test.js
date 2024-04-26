@@ -18,8 +18,8 @@ SN('insert #1 data into database', async ({ database, mock_db_data_1, skip }) =>
 });
 
 
-SN('query #1 data from database', async ({ database, skip }) => {
-    skip();
+SN('query #1 data from database', async ({ database, SKIP_LOCALLY }) => {
+    SKIP_LOCALLY();
 
     const query = await database.query.get(['name', 'amount']).where([
         'or',
@@ -42,8 +42,8 @@ SN('query #1 data from database', async ({ database, skip }) => {
 });
 
 
-SN('query #2 data from database', async ({ database, skip }) => {
-    skip();
+SN('query #2 data from database', async ({ database, SKIP_LOCALLY }) => {
+    SKIP_LOCALLY();
 
     const query = await database.query.get(['name', 'amount']).where([
         'and',
@@ -67,8 +67,8 @@ SN('query #2 data from database', async ({ database, skip }) => {
 });
 
 
-SN('query #3 data from database with unknown field', async ({ database, skip }) => {
-    skip();
+SN('query #3 data from database with unknown field', async ({ database, SKIP_LOCALLY }) => {
+    SKIP_LOCALLY();
 
     const query = database.query.get(['name', 'amount', 'unknown']).where([
         'and',
@@ -88,7 +88,8 @@ SN('query #3 data from database with unknown field', async ({ database, skip }) 
 
 });
 
-SN('query #3 data from database with unknown field', async ({ database, skip }) => {
+SN('query #3 data from database with unknown field', async ({ database, SKIP_LOCALLY }) => {
+    SKIP_LOCALLY()
 
     const query = await database.query.get(['name', '.id']).where([
         'and',

@@ -62,5 +62,9 @@ export const SN = test.extend({
 
         database = null;
     },
-    mock_db_data_1
+    mock_db_data_1,
+    SKIP_LOCALLY: function ({ skip }) {
+        if (process.env?.GITHUB_ACTIONS === true) return
+        skip()
+    }
 })

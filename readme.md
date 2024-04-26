@@ -1,15 +1,19 @@
 
 # simplenotion
 
-Lightweight wrapper around notion native JavaScript SDK to make things a bit easier when connecting to your notion account.
+Lightweight wrapper around notion native JavaScript SDK to make things a bit easier when connecting to your notion account. For now it only supports Database operations.
 
 # Database Class
 
 ## 1 - Create Object of Database
 
-Database constructor needs secret notion token (see [create new notion integration](https://www.notion.so/my-integrations)) and database id (you can get this from url). Make sure that the database you want to access is shared with the integration you create.
+Database constructor needs secret notion token () and database id (you can get this from url). Make sure that the database you want to access is shared with the integration you create.
 
     const database = new Database(NOTION_SECRET_TOKEN, SOME_DATABASE_ID);
+
+### Integrations
+- Create integration at https://www.notion.so/my-integrations. Once created, you can set the desired capabilities or the access level.
+- Share the integration with the resources you want ![Hello](./public/images/image.png)    
 
 ### Things to keep in mind
 

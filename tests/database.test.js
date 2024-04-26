@@ -17,9 +17,7 @@ SN('insert #1 data into database', async ({ database, mock_db_data_1, skip }) =>
     expect(resSuccess.length).toBe(res.length);
 });
 
-
 SN('query #1 data from database', async ({ database, SKIP_LOCALLY }) => {
-    SKIP_LOCALLY();
 
     const query = await database.query.get(['name', 'amount']).where([
         'or',
@@ -43,7 +41,6 @@ SN('query #1 data from database', async ({ database, SKIP_LOCALLY }) => {
 
 
 SN('query #2 data from database', async ({ database, SKIP_LOCALLY }) => {
-    SKIP_LOCALLY();
 
     const query = await database.query.get(['name', 'amount']).where([
         'and',
@@ -68,7 +65,6 @@ SN('query #2 data from database', async ({ database, SKIP_LOCALLY }) => {
 
 
 SN('query #3 data from database with unknown field', async ({ database, SKIP_LOCALLY }) => {
-    SKIP_LOCALLY();
 
     const query = database.query.get(['name', 'amount', 'unknown']).where([
         'and',
@@ -88,10 +84,9 @@ SN('query #3 data from database with unknown field', async ({ database, SKIP_LOC
 
 });
 
-SN('query #3 data from database with unknown field', async ({ database, SKIP_LOCALLY }) => {
-    SKIP_LOCALLY()
+SN('query #3 data from database with unknown field', async ({ database }) => {
 
-    const query = await database.query.get(['name', '.id']).where([
+    const query = await database.query.get(['.id']).where([
         'and',
         ['amount', 'less_than', 20],
         'or',
@@ -99,5 +94,5 @@ SN('query #3 data from database with unknown field', async ({ database, SKIP_LOC
         ['name', 'contains', 'Local']
     ]).run()
 
-    // console.log(query);
+    console.log(query);
 })

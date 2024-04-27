@@ -19,7 +19,8 @@ export default defineConfig({
     },
 
     test: {
-        testTimeout: 1000 * 60
+        testTimeout: 1000 * 60,
+        bail: 1
     },
 
     build: {

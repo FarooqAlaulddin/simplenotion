@@ -141,22 +141,9 @@ export class Database extends NativeClient {
 
         if (insertMethod === 'non-strict') {
             // Method used to insert data into database using Promise.allSettled().
-            let notionResponse = await Promise.allSettled(this.#pushInsertPromsises(notionDatabaseInputFormat));
-            notionResponse = notionResponse.map((p) => {
-                if (p.status == 'fulfilled') {
-                    return { 'id': p.value.id, 'status': p.status };
-                } else if (p.status == 'rejected') {
-                    let message = '';
-                    try {
-                        message = JSON.parse(p.reason.body).message;
-                    } catch (err) {
-                        message = p.reason.message;
-                    }
-                    return { 'id': null, 'status': p.status, 'message': message };
-                }
-            });
+            const notionResponse = await Promise.allSettled(this.#pushInsertPromsises(notionDatabaseInputFormat));
+            return this.#handleCompletedNotionPromises(notionResponse);
 
-            return notionResponse;
         } else if (insertMethod === 'strict') {
             /* TODO:
                 - need to be woked on after Query function is complete/
@@ -177,12 +164,10 @@ export class Database extends NativeClient {
     }
 
 
-    async delete(...args) {
-
-
-
-        IDs = [IDs[0]].flat();
-        IDs.forEach(id => this.#deleteNotionPageInDatabaseParent(id))
+    async delete(ids) {
+        const promises = ids.map(id => this.#deleteNotionPageInDatabaseParent(id))
+        const notionResponse = await Promise.allSettled(promises);
+        return this.#handleCompletedNotionPromises(notionResponse)
     }
 
     // Getters
@@ -209,18 +194,22 @@ export class Database extends NativeClient {
     // Helpers Methods - Hidden
     // *************************************************************************************************************
 
-    /**
-     * Method used to delete a notion block by id
-     * @private
-     * @param {string} pageId
-     * @return {Promise} notion API promise object
-     */
-    #deleteNotionPageInDatabaseParent(pageId) {
-        return this._getNativeClient().blocks.delete({
-            block_id: pageId,
+
+    #handleCompletedNotionPromises(notionResponse) {
+        return notionResponse.map((p) => {
+            if (p.status == 'fulfilled') {
+                return { 'id': p.value.id, 'status': p.status };
+            } else if (p.status == 'rejected') {
+                let message = '';
+                try {
+                    message = JSON.parse(p.reason.body).message;
+                } catch (err) {
+                    message = p.reason.message;
+                }
+                return { 'id': null, 'status': p.status, 'message': message };
+            }
         });
     }
-
 
     /**
      * pushInsertPromsises function pushs notion format object to a promise array to be handled as a collection
@@ -237,6 +226,17 @@ export class Database extends NativeClient {
     }
 
 
+    /**
+     * Method used to delete a notion block by id
+     * @private
+     * @param {string} pageId
+     * @return {Promise} notion API promise object
+     */
+    #deleteNotionPageInDatabaseParent(pageId) {
+        return this._getNativeClient().blocks.delete({
+            block_id: pageId,
+        });
+    }
 
     /**
      * Method used to insert a single row in the specified database.

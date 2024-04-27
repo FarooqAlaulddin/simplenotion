@@ -1,5 +1,5 @@
 // my-test.ts
-import { test } from 'vitest'
+import { test, afterEach } from 'vitest'
 import { Database } from '+sn/database';
 
 let database = null;
@@ -12,7 +12,8 @@ const mock_db_data_1 = [
         "date": "2024-02-23",
         "amount": "8.18",
         "name": "Temple Coffee"
-    },
+    }
+    ,
     {
         "type": "card_payment",
         "status": "pending",
@@ -47,10 +48,15 @@ const mock_db_data_1 = [
     },
 ]
 
-export const SN = test.extend({
+// afterEach(({ task }) => {
+//     const state = task.result.state;
+// })
 
+
+export const SN = test.extend({
     NOTION_SECRET_TOKEN: import.meta.env.VITE_TESTS_NOTION_SECRET_TOKEN,
     NOTION_DATABASE_1: import.meta.env.VITE_TESTS_NOTION_DATABASE_1,
+    mock_db_data_1,
     database: async function ({ }, use) {
         const NOTION_SECRET_TOKEN = import.meta.env.VITE_TESTS_NOTION_SECRET_TOKEN;
         const NOTION_DATABASE_1 = import.meta.env.VITE_TESTS_NOTION_DATABASE_1;
@@ -62,9 +68,8 @@ export const SN = test.extend({
 
         database = null;
     },
-    mock_db_data_1,
     SKIP_LOCALLY: function ({ skip }) {
         if (process.env?.VITE_TESTS_IS_GETHUB_ACTIONS === 'Actions') return
-        skip()
-    }
+        skip();
+    },
 })

@@ -9,15 +9,22 @@ SN('get notion database property names', async ({ database }) => {
     expect(fields.every(item => typeof item === 'string')).toBe(true);
 });
 
-SN('insert #1 data into database', async ({ database, mock_db_data_1, skip }) => {
-    skip();
+SN('delete all rows of the database', async ({ database }) => {
+
+    const query = await database.query.get(['.id']).run()
+    expect(query.length).toBe(0)
+
+})
+
+SN('insert #1 data into database', async ({ database, mock_db_data_1 }) => {
+    // skip();
     const res = await database.insert(mock_db_data_1);
     const resSuccess = res.filter(item => item.status === 'fulfilled');
     // Expectation
     expect(resSuccess.length).toBe(res.length);
 });
 
-SN('query #1 data from database', async ({ database, SKIP_LOCALLY }) => {
+SN('query #1 data from database', async ({ database }) => {
 
     const query = await database.query.get(['name', 'amount']).where([
         'or',
@@ -40,7 +47,7 @@ SN('query #1 data from database', async ({ database, SKIP_LOCALLY }) => {
 });
 
 
-SN('query #2 data from database', async ({ database, SKIP_LOCALLY }) => {
+SN('query #2 data from database', async ({ database }) => {
 
     const query = await database.query.get(['name', 'amount']).where([
         'and',
@@ -64,7 +71,7 @@ SN('query #2 data from database', async ({ database, SKIP_LOCALLY }) => {
 });
 
 
-SN('query #3 data from database with unknown field', async ({ database, SKIP_LOCALLY }) => {
+SN('query #3 data from database with unknown field', async ({ database }) => {
 
     const query = database.query.get(['name', 'amount', 'unknown']).where([
         'and',
@@ -84,7 +91,7 @@ SN('query #3 data from database with unknown field', async ({ database, SKIP_LOC
 
 });
 
-SN('query #3 data from database with unknown field', async ({ database }) => {
+SN('query #4 data from database with row propery .id', async ({ database }) => {
 
     const query = await database.query.get(['.id']).where([
         'and',
@@ -94,5 +101,30 @@ SN('query #3 data from database with unknown field', async ({ database }) => {
         ['name', 'contains', 'Local']
     ]).run()
 
-    console.log(query);
+    /*
+    [
+        { name: 'Starbucks', '.id': 'cb517822-1c2c-4c78-a2d8-553ca5322084' },
+        {
+          name: 'Local Bakery',
+          '.id': '7ea36ddf-f4af-4e3e-a664-d886dd4cc9c2'
+        }
+    ]
+    */
+
+    expect(query.length).toBe(2);
+    expect(query.every(item => item.hasOwnProperty('name') && item.hasOwnProperty('.id'))).toBe(true);
+
+})
+
+
+SN('delete #1 all rows of the database', async ({ database }) => {
+
+    const query = await database.query.get(['.id']).run()
+    const items = query.map(item => item['.id']);
+
+    const res = await database.delete(items);
+    const resSuccess = res.filter(item => item.status === 'fulfilled');
+
+    expect(resSuccess.length).toBe(5);
+
 })

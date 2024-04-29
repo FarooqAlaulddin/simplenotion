@@ -10,15 +10,47 @@ export const getProperty = (path, obj) => {
         path = path.substring(1);
     }
 
-    if (!path || typeof path !== 'string' || !obj || typeof obj !== 'object') return;
+    if (!path || typeof path !== 'string' || !obj || typeof obj !== 'object') return null;
 
     const keys = path.split('.');
 
     let result = obj;
     for (const key of keys) {
-        if (!result.hasOwnProperty(key)) return; // Property not found, return undefined
+        if (!result.hasOwnProperty(key)) return null; // Property not found, return undefined
         result = result[key]; // Move to the next nested object
     }
 
     return result;
 };
+
+
+// Function to read JSON file based on environment (Node.js or browser)
+export const readFile = async (path) => {
+    let jsonData;
+
+    if (typeof window === 'undefined') {
+        // Node.js environment
+        const fs = require('fs').promises;
+        try {
+            const fileData = await fs.readFile(path, 'utf-8');
+            jsonData = JSON.parse(fileData);
+        } catch (error) {
+            console.error(`Error reading JSON file: ${error}`);
+            return null
+        }
+    } else {
+        // Browser environment
+        try {
+            const response = await fetch(path);
+            if (!response.ok) {
+                throw new Error(`Failed to fetch JSON: ${response.statusText}`);
+            }
+            jsonData = await response.json();
+        } catch (error) {
+            console.error(`Error fetching JSON: ${error}`);
+            return null
+        }
+    }
+
+    return jsonData;
+}

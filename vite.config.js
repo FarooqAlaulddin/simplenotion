@@ -20,7 +20,8 @@ export default defineConfig({
 
     test: {
         testTimeout: 1000 * 60,
-        bail: 1
+        bail: 1,
+        include: ['./tests/**/*.test.js'],
     },
 
     build: {

@@ -1,7 +1,7 @@
 import { NativeClient } from '+notionhq';
 import { SimpleNotionException } from '+sn/errors';
-import { checkSupportedPropertyTyeps, DataTypes } from '+sn/common';
-import { ConfigurationManager } from '+sn/conf';
+import { DataTypes } from '+sn/common';
+import { Config } from '+sn/conf';
 import { Query } from '+sn/database';
 
 /** @module Database */
@@ -73,15 +73,20 @@ export class Database extends NativeClient {
             throw new SimpleNotionException(1001, error);
         }
 
-        await checkSupportedPropertyTyeps(this.name, this.properties).catch((err) => console.log(err));
+        // config setup
+        this.Configs = await Config();
 
+        const supportedTypes = this.Configs.get('.settings.Supported_Database_Property_Types')
+        const propertiesCheck = Object.values(this.properties).map(p => p.type).every(type => supportedTypes.includes(type))
+
+        if (!propertiesCheck) {
+            throw new SimpleNotionException(1000,
+                `simplenotion supports the following types: ${supportedTypes.join(', ')}`);
+        }
 
         // sort database properties alphabetically
         this.properties = Object.fromEntries(Object.entries(this.properties).sort());
 
-
-        // config setup
-        this.configurationManager = new ConfigurationManager(this.userClassConfig);
 
         // Notion Database Object Provider
         this.dataTypes = new DataTypes();
@@ -137,7 +142,7 @@ export class Database extends NativeClient {
             notionDatabaseInputFormat.push(tempRowObject);
         });
 
-        const insertMethod = await this.configurationManager.behavioral('insertMode');
+        const insertMethod = this.Configs.get('.settings.insertMode');
 
         if (insertMethod === 'non-strict') {
             // Method used to insert data into database using Promise.allSettled().

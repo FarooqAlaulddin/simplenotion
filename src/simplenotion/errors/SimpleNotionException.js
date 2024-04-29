@@ -1,8 +1,7 @@
 // eslint-disable-next-line no-unused-vars
 import errorCodes from '+sn/errors/ErrorCodes.json';
-import { ConfigurationManager } from '+sn/conf';
+import { config } from '+sn/conf';
 
-const LOG_BEHAVIOR = ConfigurationManager.prototype.behavioral('logs');
 /**
  * Error class used to handle native sdk and simplenotion exceptions.
  */
@@ -30,12 +29,7 @@ export class SimpleNotionException extends Error {
         const subst = ``;
         this.message = this.message.replace(regex, subst);
 
-        LOG_BEHAVIOR.then((res) => {
-            if (res === true) {
-                console.log(`{"code": ${this.code}, "text": "${this.type}", "message": "${this.message === '' ? '' : this.message}"}`.brightBlue);
-            }
-        })
-
+        // console.log(`{"code": ${this.code}, "text": "${this.type}", "message": "${this.message === '' ? '' : this.message}"}`.brightBlue);
         this.display = {
             code: this.code,
             text: this.type,

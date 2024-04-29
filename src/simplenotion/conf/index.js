@@ -1,1 +1,1 @@
-export { ConfigurationManager } from './configurationManager';
+export { config, Config } from './conf';

@@ -18,7 +18,8 @@
     "dev": "vite-node --watch example.js",
     "build:watch": "vite build --watch",
     "build": "vite build",
-    "test": "vitest"
+    "test": "vitest'",
+    "play": "vitest ./tests/playground"
   },
   "dependencies": {
     "@notionhq/client": "^2.2.14",

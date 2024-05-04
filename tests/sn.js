@@ -58,11 +58,12 @@ export const SN = test.extend({
     NOTION_DATABASE_1: import.meta.env.VITE_TESTS_NOTION_DATABASE_1,
     mock_db_data_1,
     database: async function ({ }, use) {
+
         const NOTION_SECRET_TOKEN = import.meta.env.VITE_TESTS_NOTION_SECRET_TOKEN;
         const NOTION_DATABASE_1 = import.meta.env.VITE_TESTS_NOTION_DATABASE_1;
 
         database = new Database(NOTION_SECRET_TOKEN, NOTION_DATABASE_1);
-        await database.isReady().catch(e => console.log(e))
+        await database.isReady();
 
         await use(database);
 

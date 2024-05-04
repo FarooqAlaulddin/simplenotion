@@ -13,9 +13,8 @@ if (USER_DEFINED_CONFIGS_PATH) {
 export const config = {
     settings: {
         Logs: false,
-        Promise_Handler: 'allSettled',
         test: "in_default",
-        insertMode: "non-strict",
+        Insert_Is_Atomic: false,
         Supported_Database_Property_Types: ["title", "rich_text", "date", "number"]
     },
     isReady: async () => {

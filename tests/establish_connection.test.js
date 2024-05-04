@@ -17,5 +17,5 @@ SN('connect to a notion database', async ({ NOTION_DATABASE_1, NOTION_SECRET_TOK
 
 SN('failed connect to a notion database', async () => {
     const database = new Database('ffff', 'dddd');
-    await expect(database.isReady()).rejects.to.contain({ code: 1001 });
+    await expect(database.isReady()).rejects.to.contain({ code: 401 });
 })

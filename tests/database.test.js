@@ -9,19 +9,29 @@ SN('get notion database property names', async ({ database }) => {
     expect(fields.every(item => typeof item === 'string')).toBe(true);
 });
 
-SN('delete all rows of the database', async ({ database }) => {
+SN('check if database is empty', async ({ database }) => {
 
     const query = await database.query.get(['.id']).run()
     expect(query.length).toBe(0)
 
-})
+});
 
 SN('insert #1 data into database', async ({ database, mock_db_data_1 }) => {
-    // skip();
-    const res = await database.insert(mock_db_data_1);
-    const resSuccess = res.filter(item => item.status === 'fulfilled');
-    // Expectation
-    expect(resSuccess.length).toBe(res.length);
+
+    const extra_field = [{
+        "type": "card_payment",
+        "status": "pending",
+        "description": "TEMPLE COFFEE Sacramento CA",
+        "date": "must.fail",
+        "amount": "8.18",
+        "name": "Temple Coffee"
+    }]
+
+    const res = await database.insert([...mock_db_data_1, ...extra_field]);
+
+    expect(res.fulfilled.length).toBe(mock_db_data_1.length);
+    expect(res.rejected.length).toBe(1);
+
 });
 
 SN('query #1 data from database', async ({ database }) => {
@@ -123,8 +133,33 @@ SN('delete #1 all rows of the database', async ({ database }) => {
     const items = query.map(item => item['.id']);
 
     const res = await database.delete(items);
-    const resSuccess = res.filter(item => item.status === 'fulfilled');
-
-    expect(resSuccess.length).toBe(5);
+    // const resSuccess = res.filter(item => item.status === 'fulfilled');
+    expect(res.fulfilled.length).toBe(items.length);
+    expect(res.rejected.length).toBe(0);
 
 })
+
+
+// SN.fails('insert #1 should fail due to rejected promise. When `Insert_Is_Atomic = true`, transcation is aborted', async ({ database, mock_db_data_1 }) => {
+
+//     // database.Configs.get(".settings.Insert_Is_Atomic")
+
+//     const data_edit = [{
+//         "type": "card_payment",
+//         "status": "pending",
+//         "description": "TEMPLE COFFEE Sacramento CA",
+//         "date": "must.fail",
+//         "amount": "8.18",
+//         "name": "Temple Coffee"
+//     }]
+
+//     const res = await database.insert([...mock_db_data_1, ...data_edit]);
+
+//     expect(res.rejected.length).toBe(1);
+//     expect(res.rejected[0]).rejects.to.contain({ index: 5 });
+
+//     const items = query.map(item => item['.id']);
+
+//     expect(items.length).toBe(0);
+
+// });

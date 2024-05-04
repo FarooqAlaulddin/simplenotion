@@ -70,7 +70,8 @@ export class Database extends NativeClient {
             this.parent = this.#metadata.parent;
             this.properties = this.#metadata.properties;
         } catch (error) {
-            throw new SimpleNotionException(1001, error);
+            // console.log(error);
+            throw new SimpleNotionException(error);
         }
 
         // config setup
@@ -110,14 +111,11 @@ export class Database extends NativeClient {
      * Method used to insert data into notion database.
      */
     async insert(...args) {
-        // User data.
-        // Array warp, incase the first param is not array of objects.
-        const incomingData = [args[0]].flat();
 
+        const incomingData = [args[0]].flat();
         // Notion Database accept data in a certain format. Incoming data must follow this format.
         const notionDatabaseInputFormat = [];
-
-
+        const Insert_Is_Atomic = this.Configs.get('.settings.Insert_Is_Atomic');
 
         // Rows => Row =>
         incomingData.map((row) => {
@@ -125,6 +123,7 @@ export class Database extends NativeClient {
             let tempRowObject = {};
 
             Object.entries(row).map(([fieldName, content]) => {
+
                 // Check if fieldName is indeed a database field
                 if (!this.propertyNames.includes(fieldName)) {
                     const message = `Trying to insert data '${content}' into unknow database field '${fieldName}'. Remove '${fieldName}' field from your input data or create a new '${fieldName}' field in ${this.name} database.`;
@@ -142,30 +141,19 @@ export class Database extends NativeClient {
             notionDatabaseInputFormat.push(tempRowObject);
         });
 
-        const insertMethod = this.Configs.get('.settings.insertMode');
+        const notionResponse = await Promise.allSettled(this.#pushInsertPromsises(notionDatabaseInputFormat));
+        const results = this.#handleCompletedNotionPromises(notionResponse);
 
-        if (insertMethod === 'non-strict') {
-            // Method used to insert data into database using Promise.allSettled().
-            const notionResponse = await Promise.allSettled(this.#pushInsertPromsises(notionDatabaseInputFormat));
-            return this.#handleCompletedNotionPromises(notionResponse);
-
-        } else if (insertMethod === 'strict') {
-            /* TODO:
-                - need to be woked on after Query function is complete/
-                - Query function is called to get the last inputed PageIDs
-                - This Query result is passed to delete function to peform the delete required.
-                OR
-                    - Maybe handle input without a promise collection?
-                        meaning having a for loop and checking the result if it was inputed or not?
-            */
-
-            // Method used to insert data into database using Promise.all().
-            // let notionResponse = await Promise.all(this.#pushInsertPromsises(notionDatabaseInputFormat));
-            // return notionResponse;
+        if (!Insert_Is_Atomic || results.rejected.length === 0) {
+            return results;
         }
-
-
-        throw new SimpleNotionException(1004);
+        else {
+            // all rows must be inserted
+            const dres = await this.delete(results.fulfilled.map(item => item['.id']));
+            // TODO: What if delete is not working?
+            throw new SimpleNotionException(1002, 'Since Insert_Is_Atomic is set to true, already inserted data were deleted. See `rejected` for errors.', { "rejected": results.rejected });
+        }
+        // throw new SimpleNotionException(1004);
     }
 
 
@@ -201,9 +189,18 @@ export class Database extends NativeClient {
 
 
     #handleCompletedNotionPromises(notionResponse) {
-        return notionResponse.map((p) => {
+
+        const results = {
+            total: notionResponse.length,
+            fulfilled: [],
+            rejected: []
+        }
+
+        notionResponse.forEach((p, idx) => {
+
             if (p.status == 'fulfilled') {
-                return { 'id': p.value.id, 'status': p.status };
+                results.fulfilled.push({ '.id': p.value.id })
+
             } else if (p.status == 'rejected') {
                 let message = '';
                 try {
@@ -211,9 +208,11 @@ export class Database extends NativeClient {
                 } catch (err) {
                     message = p.reason.message;
                 }
-                return { 'id': null, 'status': p.status, 'message': message };
+                results.rejected.push({ index: idx, 'message': message, status: p.reason.status, code: p.reason.code })
             }
         });
+
+        return results;
     }
 
     /**

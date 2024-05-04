@@ -12,31 +12,55 @@ export class SimpleNotionException extends Error {
      * @param {number} code - Error code identifier.
      * @param {*} message - custom message.
     */
-    constructor(code = 1, message = '') {
+    constructor(...args) {
+
+        let code = undefined // if code < 1000, means request is sent to notion
+        let text = undefined // text version of the code.
+        let message = undefined // any details?
+        let more = undefined  // anything else passed as object {field: value}
+
+        if (args.length === 1 && typeof args[0] === 'object') {
+            const notionError = args[0]
+            code = notionError.status;
+            text = notionError.code;
+            message = notionError.message;
+        }
+        else {
+            [code = 1, message = '', ...more] = args
+        }
+
         super(message);
         this.code = code;
-        this.type = this.getErrorType(this.code).text;
-        return this.info();
+        this.text = text ? text : this.getErrorType(this.code).text;
+
+        return this.info(more);
     }
 
     /**
      * Method used to display and return the exception.
      * @return {JSON} - Error {code: string, text: string, message: string}
      */
-    info() {
+    info(args) {
 
         const regex = /`"|"`/gm;
         const subst = ``;
-        this.message = this.message.replace(regex, subst);
+        // this.message = this.message.replace(regex, subst);
 
+        // console.log(...args);
         // console.log(`{"code": ${this.code}, "text": "${this.type}", "message": "${this.message === '' ? '' : this.message}"}`.brightBlue);
-        this.display = {
+        const display = {
             code: this.code,
-            text: this.type,
-            msg: this.message,
+            text: this.text,
+            reason: this.message
         }
 
-        return this.display;
+        args && args.forEach(arg => {
+            if (typeof arg === 'object') {
+                Object.assign(display, arg)
+            }
+        })
+
+        return display;
     }
 
 

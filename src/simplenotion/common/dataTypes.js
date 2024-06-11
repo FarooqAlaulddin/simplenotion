@@ -30,6 +30,7 @@ class dataTypes {
             [fieldName]: {
                 rich_text: [
                     {
+                        type: "text",
                         text: { content: content },
                         annotations: this.annotations,
                     },

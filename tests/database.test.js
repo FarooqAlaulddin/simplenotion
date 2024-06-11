@@ -140,7 +140,7 @@ SN('delete #1 all rows of the database', async ({ database }) => {
 })
 
 
-// SN.fails('insert #1 should fail due to rejected promise. When `Insert_Is_Atomic = true`, transcation is aborted', async ({ database, mock_db_data_1 }) => {
+// SN.fails('insert #1 should fail due to rejected promise. When `Insert_Is_Atomic = true`, transcation is aborted', async ({ }) => {
 
 //     // database.Configs.get(".settings.Insert_Is_Atomic")
 
@@ -153,13 +153,15 @@ SN('delete #1 all rows of the database', async ({ database }) => {
 //         "name": "Temple Coffee"
 //     }]
 
-//     const res = await database.insert([...mock_db_data_1, ...data_edit]);
+//     console.log('1');
+//     // const database = new Database(NOTION_SECRET_TOKEN, NOTION_DATABASE_1);
+//     // const res = await database.insert([...mock_db_data_1, ...data_edit]);
 
-//     expect(res.rejected.length).toBe(1);
-//     expect(res.rejected[0]).rejects.to.contain({ index: 5 });
+//     // expect(res.rejected.length).toBe(1);
+//     // expect(res.rejected[0]).rejects.to.contain({ index: 5 });
 
-//     const items = query.map(item => item['.id']);
+//     // const items = query.map(item => item['.id']);
 
-//     expect(items.length).toBe(0);
+//     // expect(items.length).toBe(0);
 
 // });

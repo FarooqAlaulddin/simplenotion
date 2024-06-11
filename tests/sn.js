@@ -12,8 +12,7 @@ const mock_db_data_1 = [
         "date": "2024-02-23",
         "amount": "8.18",
         "name": "Temple Coffee"
-    }
-    ,
+    },
     {
         "type": "card_payment",
         "status": "pending",

@@ -29,9 +29,14 @@ export class SimpleNotionException extends Error {
             [code = 1, message = '', ...more] = args
         }
 
+        const ErrorJsonObject = getErrorByCode(code);
+
+        message = `${ErrorJsonObject?.description ? ErrorJsonObject.description : ''}${message ? ' ' + message : ''}`
+
         super(message);
         this.code = code;
-        this.text = text ? text : this.getErrorType(this.code).text;
+        this.text = text ? text : ErrorJsonObject.code_text;
+        this.description = this.message
 
         return this.info(more);
     }
@@ -40,21 +45,20 @@ export class SimpleNotionException extends Error {
      * Method used to display and return the exception.
      * @return {JSON} - Error {code: string, text: string, message: string}
      */
-    info(args) {
+    info(more) {
 
         const regex = /`"|"`/gm;
         const subst = ``;
         // this.message = this.message.replace(regex, subst);
 
-        // console.log(...args);
         // console.log(`{"code": ${this.code}, "text": "${this.type}", "message": "${this.message === '' ? '' : this.message}"}`.brightBlue);
         const display = {
             code: this.code,
             text: this.text,
-            reason: this.message
+            description: this.description,
         }
 
-        args && args.forEach(arg => {
+        more && more.forEach(arg => {
             if (typeof arg === 'object') {
                 Object.assign(display, arg)
             }
@@ -94,4 +98,9 @@ function ExceptionMessageHandler(notionError) {
     }
 
     return message
+}
+
+
+function getErrorByCode(code) {
+    return errorCodes.find((error) => error.code === code);
 }

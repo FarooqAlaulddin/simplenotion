@@ -81,50 +81,64 @@
     },
     {
         "code": 0,
-        "text": "General simplenotion error."
+        "description": "General simplenotion error."
     },
     {
         "code": 1,
-        "text": "General simplenotion database error."
+        "description": "General simplenotion database error."
     },
     {
         "code": 2,
-        "text": "General simplenotion query error."
+        "description": "General simplenotion query error."
     },
     {
         "code": 1000,
-        "text": "Database provided has unsupported property tyeps."
+        "code_text": "database_error",
+        "description": "Database provided has unsupported property tyeps."
     },
     {
         "code": 1001,
-        "text": "Could not retrieve the specified database."
+        "code_text": "database_error",
+        "description": "Could not retrieve the specified database."
     },
     {
         "code": 1002,
-        "text": "Could not insert data into database."
+        "code_text": "database_error",
+        "description": "Could not insert data into database."
     },
     {
         "code": 1003,
-        "text": "Could not insert some of the data into database."
+        "code_text": "database_error",
+        "description": "Could not insert some of the data into database."
     },
     {
         "code": 1004,
-        "text": "Unknow insert behavior type."
+        "code_text": "database_error",
+        "description": "Unknow insert behavior type."
     },
     {
         "code": 1005,
-        "text": "Database is not ready."
+        "code_text": "database_error",
+        "description": "Database is not ready."
     },
     {
         "code": 1006,
-        "text": "Query failed."
+        "code_text": "database_error",
+        "description": "Query failed."
     },
     {
         "code": 1007,
-        "text": "where() method arguments are incorrect."
+        "code_text": "database_error",
+        "description": "where() method arguments are incorrect."
     },
     {
         "code": 1008,
-        "text": "get() method arguments are incorrect."
+        "code_text": "database_error",
+        "description": "get() method arguments are incorrect."
+    },
+    {
+        "code": 1009,
+        "code_text": "database_error",
+        "description": "Calling a method in a Database object prior to isReady()."
     }
 ]

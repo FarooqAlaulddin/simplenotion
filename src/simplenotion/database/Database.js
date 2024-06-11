@@ -17,14 +17,14 @@ export class Database extends NativeClient {
      * The purpose of this class is to make the interaction process with notion database easier.
      * @param { string } notionToken - Notion Integration Token Key. Make sure the Integration is applied to the database/s.
      * @param { string } databaseID - Unique identifier for a notion database.
-     * @param { object } userClassConfig
+     * @param { object } options
      */
-    constructor(notionToken = null, databaseID = null, userClassConfig = {}) {
+    constructor(notionToken = null, databaseID = null, options = null) {
         super();
 
         /* FIXME:
             if notionToken == null or?and? databaseID == null
-                userClassConfig for the tokens
+                options for the tokens
         */
         this._setNativeClient(notionToken);
         this.databaseID = databaseID;
@@ -39,8 +39,7 @@ export class Database extends NativeClient {
         this.lastEditedTime = null;
         this.parent = null;
         this.properties = null;
-
-        this.userClassConfig = userClassConfig;
+        this.options = options;
     }
 
     // *************************************************************************************************************
@@ -75,7 +74,8 @@ export class Database extends NativeClient {
         }
 
         // config setup
-        this.Configs = await Config();
+        this.Configs = await Config(this.options);
+        // this.Configs.get('.notion.pageProperties').instanceof('url', 'value')
 
         const supportedTypes = this.Configs.get('.settings.Supported_Database_Property_Types')
         const propertiesCheck = Object.values(this.properties).map(p => p.type).every(type => supportedTypes.includes(type))
@@ -111,6 +111,7 @@ export class Database extends NativeClient {
      * Method used to insert data into notion database.
      */
     async insert(...args) {
+        this.#throwOnNotReady();
 
         const incomingData = [args[0]].flat();
         // Notion Database accept data in a certain format. Incoming data must follow this format.
@@ -130,14 +131,12 @@ export class Database extends NativeClient {
                     throw new SimpleNotionException(1002, message);
                 }
 
-                // get fieldName Type
                 const fieldNameType = this.getFieldTypeByFieldName(fieldName);
 
-                // contact the generated dataType object to tempRowObject.
-                tempRowObject = { ...tempRowObject, ...this.dataTypes['SET_' + fieldNameType](fieldName, content) };
+                // tempRowObject = { ...tempRowObject, ...this.dataTypes['SET_' + fieldNameType](fieldName, content) };
+                tempRowObject[fieldName] = this.Configs.get('.notion.pageProperties')[fieldNameType](content);
             });
 
-            // push new tempRowObject to notionDatabaseInputFormat
             notionDatabaseInputFormat.push(tempRowObject);
         });
 
@@ -151,13 +150,15 @@ export class Database extends NativeClient {
             // all rows must be inserted
             const dres = await this.delete(results.fulfilled.map(item => item['.id']));
             // TODO: What if delete is not working?
-            throw new SimpleNotionException(1002, 'Since Insert_Is_Atomic is set to true, already inserted data were deleted. See `rejected` for errors.', { "rejected": results.rejected });
+            throw new SimpleNotionException(1002, 'Since Insert_Is_Atomic is true, a rollback will be attempted. See `rejected` for errors.', { "rejected": results.rejected });
         }
         // throw new SimpleNotionException(1004);
     }
 
 
     async delete(ids) {
+        this.#throwOnNotReady();
+
         const promises = ids.map(id => this.#deleteNotionPageInDatabaseParent(id))
         const notionResponse = await Promise.allSettled(promises);
         return this.#handleCompletedNotionPromises(notionResponse)
@@ -170,6 +171,8 @@ export class Database extends NativeClient {
      * @return {Array<string>} - Database field names as array of strings.
      */
     get propertyNames() {
+        this.#throwOnNotReady();
+
         return Object.keys(this.properties);
     }
 
@@ -229,6 +232,9 @@ export class Database extends NativeClient {
         return promises;
     }
 
+    #throwOnNotReady() {
+        if (!this.#isDatabaseReady) throw new SimpleNotionException(1009)
+    }
 
     /**
      * Method used to delete a notion block by id
